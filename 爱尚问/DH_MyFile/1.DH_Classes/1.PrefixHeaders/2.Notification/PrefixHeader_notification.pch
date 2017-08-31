@@ -1,0 +1,19 @@
+//  所有通知信息头文件
+
+#ifndef PrefixHeader_notification_pch
+#define PrefixHeader_notification_pch
+
+//消息中心
+#define MYCENTER_NOTIFICATION [NSNotificationCenter defaultCenter]
+//支付成功
+#define NOTIFICATION_PAY_SUCCESS @"notification_pay_success"
+
+//用户信息更新
+#define NOTIFICATION_USERINFO_UPDATE @"NOTIFICATION_USERINFO_UPDATE"
+
+//定位成功
+#define NOTIFICATION_UPDATELOCATION_SUCCESS @"NOTIFICATION_UPDATELOCATION_SUCCESS"
+//定位失败
+#define NOTIFICATION_UPDATELOCATION_FAILED @"NOTIFICATION_UPDATELOCATION_FAILED"
+
+#endif /* PrefixHeader_notification_pch */

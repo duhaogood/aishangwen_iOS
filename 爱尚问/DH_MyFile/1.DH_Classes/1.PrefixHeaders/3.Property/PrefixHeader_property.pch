@@ -28,7 +28,9 @@
 #define MYCOLOR_144 [MYTOOL RGBWithRed:144 green:144 blue:144 alpha:1]
 //获取label的size
 #define LABEL_SIZE [MYTOOL getSizeWithLabel:label]
+//是否登录
+#define IS_NOT_LOGIN ![MYTOOL isLogin]
 
-
+#define MY_APP_DELEGATE [UIApplication sharedApplication].delegate
 
 #endif /* PrefixHeader_property_pch */

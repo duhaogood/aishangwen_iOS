@@ -30,7 +30,7 @@ static id instance;
 }
 
 //不管怎样都有回调
--(void)getDataWithInterfaceName:(NSString *)interfaceName andDictionary:(NSDictionary *)send_dic andSuccess:(void(^)(NSDictionary * back_dic)) back_block andNoSuccess:(void(^)(NSDictionary * back_dic)) no_block andFailure:(void(^)(NSURLSessionTask *, NSError *)) failure_block{
+-(void)getDataWithInterfaceName:(NSString *)interfaceName andDictionary:(NSDictionary *)send_dic andSuccess:(void(^)(NSDictionary * back_dic , NSString * msg)) back_block andNoSuccess:(void(^)(NSDictionary * back_dic , NSString * msg)) no_block andFailure:(void(^)(NSURLSessionTask *, NSError *)) failure_block{
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/html", nil];
     
@@ -43,13 +43,13 @@ static id instance;
     
     [manager GET:urlString parameters:send progress:nil success:^(NSURLSessionTask *task, id responseObject) {
         [SVProgressHUD dismiss];
-        if (![[responseObject valueForKey:@"Result"] boolValue]) {
-            no_block(responseObject);
+        if (![[responseObject valueForKey:@"success"] boolValue]) {
+            no_block(responseObject,responseObject[@"msg"]);
         }else{
-            back_block(responseObject);
+            back_block(responseObject[@"value"],responseObject[@"msg"]);
         }
     } failure:^(NSURLSessionTask *operation, NSError *error) {
-        [SVProgressHUD showErrorWithStatus:@"网络出错" duration:2];
+        [SVProgressHUD showErrorWithStatus:@"网络出错\n或服务器更换\n请检查是否最新版本" duration:3];
         failure_block(operation,error);
     }];
     

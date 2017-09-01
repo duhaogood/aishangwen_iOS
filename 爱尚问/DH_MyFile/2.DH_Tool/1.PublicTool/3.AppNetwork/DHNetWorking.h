@@ -18,7 +18,7 @@
 
 
 //不管怎样都有回调
--(void)getDataWithInterfaceName:(NSString *)interfaceName andDictionary:(NSDictionary *)send_dic andSuccess:(void(^)(NSDictionary * back_dic)) back_block andNoSuccess:(void(^)(NSDictionary * back_dic)) no_block andFailure:(void(^)(NSURLSessionTask *operation, NSError *error)) failure_block;
+-(void)getDataWithInterfaceName:(NSString *)interfaceName andDictionary:(NSDictionary *)send_dic andSuccess:(void(^)(NSDictionary * back_dic , NSString * msg)) back_block andNoSuccess:(void(^)(NSDictionary * back_dic , NSString * msg)) no_block andFailure:(void(^)(NSURLSessionTask *operation, NSError *error)) failure_block;
 
 
 

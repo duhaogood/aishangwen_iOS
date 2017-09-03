@@ -22,6 +22,14 @@
  *  隐藏键盘
  */
 -(void)hideKeyboard;
+
+/**
+ 判断手机号是否合法
+
+ @param phoneNumber 手机号
+ @return 合法与否
+ */
+-(BOOL)isMatchPhoneNumber:(NSString *)phoneNumber;
 /**
  *  返回所有的属性数组
  *

@@ -6,12 +6,12 @@
 /**
  *  服务器地址
  */
-#define SERVER_URL @"http://222.190.120.106:8099/asw"
-
-
-
-
-
+/*公司-个人电脑*/
+//#define SERVER_URL @"http://222.190.120.106:8099/asw"
+/*宿舍*/
+#define SERVER_URL @"http://192.168.0.108:8099/asw"
+/*小鸟云*/
+//#define SERVER_URL @"http://43.248.79.147:8099/asw"
 
 
 

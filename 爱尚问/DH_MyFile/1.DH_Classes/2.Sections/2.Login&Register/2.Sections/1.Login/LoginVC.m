@@ -8,6 +8,9 @@
 
 #import "LoginVC.h"
 #import "RegisterVC.h"
+#import "ForgetPasswordVC.h"
+#import "ChangePassVC.h"
+#import "MainVC.h"
 @interface LoginVC ()<UITextFieldDelegate>
 @property(nonatomic,strong)UITextField * phoneTF;//手机号码
 @property(nonatomic,strong)UITextField * passwordTF;//密码
@@ -115,7 +118,7 @@
     {
         UIButton * btn = [UIButton new];
         btn.frame = CGRectMake(20, top, WIDTH - 40, 40);
-        btn.titleLabel.font = [MYFONT fontBigWithFontSize:25];
+        btn.titleLabel.font = [MYFONT fontBigWithFontSize:20];
         [btn setBackgroundImage:[UIImage imageNamed:@"btn_red"] forState:UIControlStateNormal];
         [btn setTitle:@"登 录" forState:UIControlStateNormal];
         [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -123,6 +126,17 @@
         [btn addTarget:self action:@selector(loginCallback) forControlEvents:UIControlEventTouchUpInside];
     }
     top += 40 + 20;
+    //更改密码
+    {
+        UIButton * btn = [UIButton new];
+        [btn addTarget:self action:@selector(changePassword) forControlEvents:UIControlEventTouchUpInside];
+        [btn setTitle:@"更改密码" forState:UIControlStateNormal];
+        btn.titleLabel.font = [MYFONT fontLittleWithFontSize:12];
+        [btn setTitleColor:[MYTOOL RGBWithRed:112 green:112 blue:112 alpha:1] forState:UIControlStateNormal];
+        float width = 60;
+        btn.frame = CGRectMake(20, top, width, 13);
+        [self.view addSubview:btn];
+    }
     //忘记密码
     {
         UIButton * btn = [UIButton new];
@@ -137,10 +151,17 @@
     
     
 }
+//更改密码事件
+-(void)changePassword{
+    ChangePassVC * vc = [ChangePassVC new];
+    vc.title = @"更改密码";
+    [self.navigationController pushViewController:vc animated:true];
+}
 //忘记密码事件
 -(void)forgetPassword{
-    
-    
+    ForgetPasswordVC * vc = [ForgetPasswordVC new];
+    vc.title = @"忘记密码";
+    [self.navigationController pushViewController:vc animated:true];
 }
 //登录事件
 -(void)loginCallback{
@@ -152,9 +173,7 @@
         //手机号
         {
             //正则表达式匹配11位手机号码
-            NSString *regex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
-            NSPredicate * pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-            BOOL isMatch = [pred evaluateWithObject:mobile];
+            BOOL isMatch = [MYTOOL isMatchPhoneNumber:mobile];
             if (!isMatch) {
                 [SVProgressHUD showErrorWithStatus:@"手机号格式不正确" duration:2];
                 return;
@@ -176,6 +195,14 @@
     [MYTOOL netWorkingWithTitle:@"登录中……"];
     [MYNETWORKING getDataWithInterfaceName:interface andDictionary:send andSuccess:^(NSDictionary *back_dic, NSString *msg) {
         [SVProgressHUD showSuccessWithStatus:msg duration:1];
+        //页面跳转
+        MainVC * vc = [MainVC new];
+        MY_APP_DELEGATE.window.rootViewController = vc;
+        //已登录保存
+        //把登录状态写进程序
+        [MYTOOL setProjectPropertyWithKey:@"isLogin" andValue:@"1"];
+        [MYTOOL setProjectPropertyWithKey:@"user_id" andValue:back_dic[@"user_id"]];
+        MYTOOL.userInfo = back_dic;
     } andNoSuccess:^(NSDictionary *back_dic, NSString *msg) {
         [SVProgressHUD showErrorWithStatus:msg duration:2];
     } andFailure:^(NSURLSessionTask *operation, NSError *error) {
@@ -191,9 +218,7 @@
     }
     NSString * mobile = textField.text;
     //正则表达式匹配11位手机号码
-    NSString *regex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
-    NSPredicate * pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    BOOL isMatch = [pred evaluateWithObject:mobile];
+    BOOL isMatch = [MYTOOL isMatchPhoneNumber:mobile];
     if (!isMatch) {
         self.checkLabel.text = @"手机格式不正确";
         self.checkLabel.textColor = [MYTOOL RGBWithRed:255 green:101 blue:101 alpha:1];

@@ -38,6 +38,7 @@ static id instance;
     if (![[interfaceName substringToIndex:1] isEqualToString:@"/"]) {
         urlString = [NSString stringWithFormat:@"%@/%@",SERVER_URL,interfaceName];
     }
+    NSLog(@"url:%@",urlString);
     NSMutableDictionary * send = [NSMutableDictionary dictionaryWithDictionary:send_dic];
     //验证参数
     

@@ -20,6 +20,7 @@
 #define APPID_MINE @"99999999"
 
 //颜色
+#define MYCOLOR_46_42_42 [MYTOOL RGBWithRed:46 green:42 blue:42 alpha:1]
 #define MYCOLOR_48_48_48 [MYTOOL RGBWithRed:48 green:48 blue:48 alpha:1]
 #define MYCOLOR_181_181_181 [MYTOOL RGBWithRed:181 green:181 blue:181 alpha:1]
 #define MYCOLOR_229_64_73 [MYTOOL RGBWithRed:229 green:64 blue:73 alpha:1]
@@ -27,10 +28,16 @@
 #define MYCOLOR_40_199_0 [MYTOOL RGBWithRed:40 green:199 blue:0 alpha:1]
 #define MYCOLOR_144 [MYTOOL RGBWithRed:144 green:144 blue:144 alpha:1]
 //获取label的size
-#define LABEL_SIZE [MYTOOL getSizeWithLabel:label]
+#define MYSIZE_OF_LABEL [MYTOOL getSizeWithLabel:label]
 //是否登录
 #define IS_NOT_LOGIN ![MYTOOL isLogin]
 
 #define MY_APP_DELEGATE [UIApplication sharedApplication].delegate
+//弹出成功信息
+#define MYPOPSUCCESS [SVProgressHUD showSuccessWithStatus:msg duration:1]
+//弹出错误信息
+#define MYPOPERROR [SVProgressHUD showErrorWithStatus:msg duration:2]
+//我的用户信息
+#define MYUSERINFO MYTOOL.userInfo
 
 #endif /* PrefixHeader_property_pch */

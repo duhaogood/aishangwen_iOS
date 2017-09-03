@@ -12,7 +12,9 @@
 @property(nonatomic,strong)UITextField * phoneTF;//手机号码
 @property(nonatomic,strong)UITextField * codeTF;//验证码
 @property(nonatomic,strong)UITextField * passwordTF;//密码
+@property(nonatomic,strong)UITextField * passwordAgaginTF;//确认密码
 @property(nonatomic,strong)UIButton * sendCodeBtn;//发送验证码按钮
+@property(nonatomic,strong)UIButton * setPassBtn;//重设密码按钮
 @property(nonatomic,strong)UILabel * checkLabel;//检测手机号
 
 @end
@@ -21,7 +23,6 @@
 {
     NSTimer * codeTimer;//验证码定时器
     int timeSpace;//时间间隔
-    NSString * codeid_id;//验证码id
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -88,13 +89,13 @@
             [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             [btn setTitleColor:MYCOLOR_181_181_181 forState:UIControlStateDisabled];
             [btn setTitle:@"发送验证码" forState:UIControlStateNormal];
-            btn.titleLabel.font = [UIFont systemFontOfSize:14];
+            btn.titleLabel.font = [MYFONT fontLittleWithFontSize:14];
             [btn addTarget:self action:@selector(sendCode:) forControlEvents:UIControlEventTouchUpInside];
             self.sendCodeBtn = btn;
             [view addSubview:btn];
         }
         
-        top += height + 40;
+        top += height + 25;
     }
     //数字验证码
     {
@@ -126,7 +127,7 @@
             tf.keyboardType = UIKeyboardTypeNumberPad;
             self.codeTF = tf;
         }
-        top += height + 28;
+        top += height + 15;
     }
     //密码
     {
@@ -160,16 +161,56 @@
         }
         
         
+        top += height + 15;
+    }
+    //确认密码
+    {
+        //背景view
+        UIView * view = [UIView new];
+        {
+            view.frame = CGRectMake(20, top, WIDTH - 40, height);
+            view.layer.masksToBounds = true;
+            view.layer.borderWidth = 1;
+            view.layer.borderColor = [MYCOLOR_240_240_240 CGColor];
+            [self.view addSubview:view];
+            view.layer.cornerRadius = height/2.0;
+        }
+        //图标
+        {
+            UIImageView * icon = [UIImageView new];
+            icon.image = [UIImage imageNamed:@"yzma"];
+            [view addSubview:icon];
+            icon.frame = CGRectMake(left1, 20-11/2.0, 14, 11);
+        }
+        //文本框
+        {
+            UITextField * tf = [UITextField new];
+            tf.placeholder = @"确认登录密码";
+            tf.font = [UIFont systemFontOfSize:14];
+            tf.frame = CGRectMake(left2, 10, WIDTH/2.0, 20);
+            [view addSubview:tf];
+            tf.tag = 500;
+            tf.delegate = self;
+            self.passwordAgaginTF = tf;
+        }
+        
+        
         top += height;
     }
-    //登录按钮
+    //密码找回
     {
         UIButton * btn = [UIButton new];
-        btn.frame = CGRectMake(20, (HEIGHT-64)/2.0, WIDTH - 40, 40);
+        float btn_top = (HEIGHT-64)/2.0;
+        if (btn_top - top < 20) {
+            btn_top = top + 20;
+        }
+        btn.frame = CGRectMake(20, btn_top, WIDTH - 40, 40);
         [btn setBackgroundImage:[UIImage imageNamed:@"btn_red"] forState:UIControlStateNormal];
         [btn setTitle:@"密码找回" forState:UIControlStateNormal];
         [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [self.view addSubview:btn];
+        self.setPassBtn = btn;
+        btn.titleLabel.font = [MYFONT fontBigWithFontSize:20];
         [btn addTarget:self action:@selector(findBackPasswordCallback) forControlEvents:UIControlEventTouchUpInside];
     }
 }
@@ -179,17 +220,15 @@
 -(void)findBackPasswordCallback{
     [SVProgressHUD showSuccessWithStatus:@"找回成功" duration:1];
     NSString * mobile = self.phoneTF.text;//手机号
-    NSString * vaildcode = self.codeTF.text;//验证码
-    NSString * codeid = codeid_id;//验证码编号
+    NSString * code = self.codeTF.text;//验证码
     NSString * password = self.passwordTF.text;//密码
+    NSString * password2 = self.passwordAgaginTF.text;//确认密码
     //验证
     {
         //手机号
         {
             //正则表达式匹配11位手机号码
-            NSString *regex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
-            NSPredicate * pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-            BOOL isMatch = [pred evaluateWithObject:mobile];
+            BOOL isMatch = [MYTOOL isMatchPhoneNumber:mobile];
             if (!isMatch) {
                 [SVProgressHUD showErrorWithStatus:@"手机号格式不正确" duration:2];
                 return;
@@ -197,15 +236,8 @@
         }
         //验证码
         {
-            if (vaildcode.length != 6) {
+            if (code.length != 6) {
                 [SVProgressHUD showErrorWithStatus:@"验证码长度不正确" duration:2];
-                return;
-            }
-        }
-        //验证码id
-        {
-            if (codeid_id == nil || codeid.length == 0) {
-                [SVProgressHUD showErrorWithStatus:@"请先发送验证码" duration:2];
                 return;
             }
         }
@@ -215,36 +247,73 @@
                 [SVProgressHUD showErrorWithStatus:@"密码不能少于6位" duration:2];
                 return;
             }
+            if (![password isEqualToString:password2]) {
+                [SVProgressHUD showErrorWithStatus:@"两次密码不同" duration:2];
+                return;
+            }
         }
+        
     }
     [MYTOOL netWorkingWithTitle:@"找回密码……"];
-    NSString * interface = @"/user/memberuser/memberuserretrievepassword.html";
-    NSDictionary * send = @{
-                            @"mobile":mobile,
-                            @"vaildcode":vaildcode,
-                            @"codeid":codeid,
-                            @"password":password
-                            };
-    
-    
-    
+    /*
+     *  1.检验验证码
+     *  2.重设密码
+     */
+    NSString * interface1 = @"/message/vertifyCode.app";
+    NSDictionary * send1 = @{
+                             @"phone_number":mobile,
+                             @"code":code
+                             };
+    [MYNETWORKING getDataWithInterfaceName:interface1 andDictionary:send1 andSuccess:^(NSDictionary *back_dic, NSString *msg) {
+        [MYTOOL netWorkingWithTitle:@"找回密码……"];
+        NSString * interface2 = @"/user/forgetPassword.app";
+        NSDictionary * send2 = @{
+                                 @"phone_number":mobile,
+                                 @"user_pass":password
+                                 };
+        [MYNETWORKING getDataWithInterfaceName:interface2 andDictionary:send2 andSuccess:^(NSDictionary *back_dic, NSString *msg) {
+            MYPOPSUCCESS;
+            [self popUpViewController];
+        } andNoSuccess:^(NSDictionary *back_dic, NSString *msg) {
+            MYPOPERROR;
+        } andFailure:^(NSURLSessionTask *operation, NSError *error) {
+            
+        }];
+        
+    } andNoSuccess:^(NSDictionary *back_dic, NSString *msg) {
+        MYPOPERROR;
+    } andFailure:^(NSURLSessionTask *operation, NSError *error) {
+        
+    }];
 }
 //发送验证码事件
 -(void)sendCode:(UIButton *)btn{
     NSString * mobile = self.phoneTF.text;
     //正则表达式匹配11位手机号码
-    NSString *regex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
-    NSPredicate * pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    BOOL isMatch = [pred evaluateWithObject:mobile];
+    BOOL isMatch = [MYTOOL isMatchPhoneNumber:mobile];
     if (!isMatch) {
         self.checkLabel.text = @"手机格式不正确";
         [SVProgressHUD showErrorWithStatus:@"手机格式不正确" duration:2];
         return;
     }
-    [MYTOOL netWorkingWithTitle:@"发送验证码……"];
+    [MYTOOL netWorkingWithTitle:@"短信发送中……"];
     //发送手机号码
-    NSString * interface = @"/common/messages/sendsmscode.html";
-    NSDictionary * send = @{@"mobile":mobile};
+    NSString * interface = @"/message/sendMessage.app";
+    NSDictionary * send = @{@"phone_number":mobile,@"type":@"1"};//type--0:注册,1:找回密码
+    [MYNETWORKING getDataWithInterfaceName:interface andDictionary:send andSuccess:^(NSDictionary *back_dic, NSString *msg) {
+        [SVProgressHUD showSuccessWithStatus:msg duration:1];
+        //发送成功后,按钮置为不可用
+        self.sendCodeBtn.enabled = false;
+        timeSpace = 60;
+        [self.sendCodeBtn setTitle:[NSString stringWithFormat:@"%d秒后可用",timeSpace] forState:UIControlStateDisabled];
+        codeTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerWorkInHere) userInfo:nil repeats:true];
+        self.setPassBtn.enabled = true;
+        self.phoneTF.enabled = false;
+    } andNoSuccess:^(NSDictionary *back_dic, NSString *msg) {
+        [SVProgressHUD showErrorWithStatus:msg duration:2];
+    } andFailure:^(NSURLSessionTask *operation, NSError *error) {
+        
+    }];
     
 }
 //定时器任务
@@ -265,9 +334,7 @@
     }
     NSString * mobile = textField.text;
     //正则表达式匹配11位手机号码
-    NSString *regex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
-    NSPredicate * pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    BOOL isMatch = [pred evaluateWithObject:mobile];
+    BOOL isMatch = [MYTOOL isMatchPhoneNumber:mobile];
     if (!isMatch) {
         self.checkLabel.text = @"手机格式不正确";
         self.checkLabel.textColor = [MYTOOL RGBWithRed:255 green:101 blue:101 alpha:1];

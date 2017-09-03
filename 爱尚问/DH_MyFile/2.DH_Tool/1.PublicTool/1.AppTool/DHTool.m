@@ -53,6 +53,13 @@ static id instance;
     }
     return mArray;
 }
+-(BOOL)isMatchPhoneNumber:(NSString *)phoneNumber{
+    //正则表达式匹配11位手机号码
+    NSString * regex = @"^1(3[0-9]|47|5((?!4)[0-9])|7(0|1|[6-8])|8[0-9])\\d{8,8}$";
+    NSPredicate * pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+    BOOL isMatch = [pred evaluateWithObject:phoneNumber];
+    return isMatch;
+}
 -(void)setAllPropertyWithDictionary:(NSDictionary *)dictionary toObject:(NSObject *)object{
     if (!object) {
         return;

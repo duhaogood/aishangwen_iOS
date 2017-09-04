@@ -66,7 +66,7 @@
 }
 //增加分类类型会掉
 -(void)addTypeCallback{
-    UIAlertController * ac = [UIAlertController alertControllerWithTitle:@"新加问题分类" message:@"此为二级分类，请填写分类名称" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController * ac = [UIAlertController alertControllerWithTitle:@"新加问题分类" message:@"此为三级分类，请填写分类名称" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction * action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
         
         [SVProgressHUD showWithStatus:@"增加中\n请稍等…" maskType:SVProgressHUDMaskTypeClear];

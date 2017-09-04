@@ -229,6 +229,7 @@
 }
 //注册
 -(void)registerBtnCallback{
+    [MYTOOL hideKeyboard];
     RegisterVC * vc = [RegisterVC new];
     vc.title = @"注册";
     [self.navigationController pushViewController:vc animated:true];
